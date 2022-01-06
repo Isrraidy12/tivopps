@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package pps;
+
+import "google/api/annotations.proto";
+
+message SamlCtxt {
+
+    message Addr {
+        string city = 1;
+        string country = 2;
+        string postalCode = 3;
+        string state = 4;
+        string street1 = 5;
+        optional string street2 = 6;
+    }
+
+    optional Addr address = 1;
+    optional string deviceType = 2;
+    optional string email = 3;
+    repeated string entitledLinearPartnerPackageId = 4;
+    repeated string entitledPartnerPackageId = 5;
+    repeated string entitledPartnerStationId = 6;
+    optional string firstName = 7;
+    optional string lastName = 8;
+    optional string msoServiceId = 9;
+
+    message PconSettings {
+        optional bool blockUnratedMovies = 1;
+        optional bool blockUnratedTvShows = 2;
+        optional bool hideAdult = 3;
+        repeated string lockedPartnerStationId = 4;
+        optional string genericRatingLimits = 5;
+
+        message LocksLimitsRating {
+            optional string mpaaRating = 1;
+            optional string tvRating = 2;
+        }
+
+        repeated LocksLimitsRating ratingLimits = 6;
+        repeated int32 spendingLimit = 7;
+    }
+
+    optional PconSettings parentalSettings = 10;
+    optional string partnerAuthToken = 11;
+    string partnerCustomerId = 12;
+    string partnerId = 13;
+    optional string partnerLoggingData = 14;
+    optional string partnerProvisioningData = 15;
+    optional string phoneNumber = 16;
+    optional string serviceTier = 17;
+    bool streamingEnabled = 18;
+    bool transactionsEnabled = 19;
+
+    message VPServicesInfo {
+        optional string partnerServicesBodyId = 1;
+        optional string partnerServicesCustomerId = 2;
+        string videoProviderPartnerLookup = 3;
+    }
+    
+    repeated VPServicesInfo videoProviderPartnerServicesInfo = 20;
+    optional string vodSiteId = 21;
+    optional string userFriendlyName = 22;
+}
+
+
+message ProvState {
+    
+    SamlCtxt samlContext = 1;
+    
+    message DeviceCfg {
+        optional string clientAppName = 1;
+        optional string clientAppVersion = 2;
+        string deviceType = 3;
+        optional string friendlyName = 4;
+        optional string macAddress = 5;
+        optional string manufacturer = 6;
+        optional string model = 7;
+        optional string osVersion = 8;
+        optional int32 screenDpi = 9;
+        optional int32 screenResolutionHeightPixels = 10;
+        optional int32 screenResolutionWidthPixels = 11;
+        optional string userAgent = 12;
+
+        message StbCfg {
+            optional string ipAdress = 1;
+            optional string tsn = 2;
+            optional string cableCardMacAddress = 3;
+            optional string cableCardId = 4;
+            optional string hardwareSerialNumber = 5;
+            optional string hostId = 6;
+            optional string platform = 7;
+        }
+
+
+        optional StbCfg stbConfig = 13;
+    }
+
+    DeviceCfg deviceConfig = 2;
+    optional string caDeviceId = 3;
+    string samlToken = 4;
+}
+
+message ErrorMsg {
+    string code = 1;
+    string message = 2;
+}
+
+message PpsRequest {
+    ProvState provisionState = 1;
+}
+
+message PpsResponse {
+    optional SamlCtxt samlContext = 1;
+    optional ErrorMsg Error = 2;
+}
+
+
+service PpsService {
+  rpc PartnerProvisioning(PpsRequest) returns (PpsResponse) {
+    option (google.api.http) = {
+      post: "/pps/partnerProvisioning"
+      body: "*"
+    };
+  }
+}
